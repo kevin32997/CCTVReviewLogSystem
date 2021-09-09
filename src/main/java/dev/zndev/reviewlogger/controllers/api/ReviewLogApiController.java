@@ -5,6 +5,7 @@ import dev.zndev.reviewlogger.configurations.SystemKeys;
 import dev.zndev.reviewlogger.controllers.others.TableUpdateService;
 import dev.zndev.reviewlogger.helpers.Helper;
 import dev.zndev.reviewlogger.helpers.ResourceHelper;
+
 import dev.zndev.reviewlogger.models.ReviewLog;
 import dev.zndev.reviewlogger.models.others.Response;
 import dev.zndev.reviewlogger.models.others.SystemData;
@@ -17,9 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 @RestController
@@ -171,8 +169,8 @@ public class ReviewLogApiController {
 
     @GetMapping("api/review_log/view/{review_id}")
     private Response getReviewLog(@PathVariable("review_id") int id) {
-        Optional<ReviewLog> optionalReviewLog=reviewLogRepo.findById(id);
-        List<ReviewLog> list=new ArrayList<>();
+        Optional<ReviewLog> optionalReviewLog = reviewLogRepo.findById(id);
+        List<ReviewLog> list = new ArrayList<>();
 
         list.add(optionalReviewLog.get());
         Response response = Helper.createResponse("Request Successful", true);
@@ -180,5 +178,56 @@ public class ReviewLogApiController {
         return response;
     }
 
+
+    /*==================================================================================================================
+                                                       UPDATE REQUEST
+    ==================================================================================================================*/
+
+    @PutMapping("api/review_log/update/{review_id}")
+    private Response updateReviewInclusiveDates(@PathVariable("review_id") int reviewId, @ModelAttribute ReviewLog details) {
+        try {
+            System.out.println("UpdateReview: inclusive dates is " + details.getInclusiveDates());
+            System.out.println("Review Log id is: " + reviewId);
+
+            Optional<ReviewLog> optionalReviewLog = reviewLogRepo.findById(reviewId);
+            ReviewLog reviewLog = optionalReviewLog.get();
+            reviewLog.setInclusiveDates(details.getInclusiveDates());
+
+            ReviewLog updatedReviewLog = reviewLogRepo.save(reviewLog);
+
+            // Auto Update
+            tableUpdateService.updateTable(SystemKeys.TABLE_UPDATE_KEY_REVIEW_LOG);
+
+            List<ReviewLog> list = new ArrayList<>();
+            list.add(updatedReviewLog);
+            return Helper.createResponse("Review Log Updated.", true, list);
+        } catch (Exception ex) {
+            return Helper.createResponse("Error: " + ex.toString(), false);
+        }
+    }
+
+
+    /*==================================================================================================================
+                                                       DELETE REQUEST
+    ==================================================================================================================*/
+
+    @DeleteMapping("api/review_log/delete/{review_id}")
+    private Response deleteReviewLog(@PathVariable("review_id") int reviewId) {
+        try {
+            Optional<ReviewLog> optionalReviewLog = reviewLogRepo.findById(reviewId);
+            if (optionalReviewLog.isPresent()) {
+                reviewLogRepo.delete(optionalReviewLog.get());
+                tableUpdateService.updateTable(SystemKeys.TABLE_UPDATE_KEY_REVIEW_LOG);
+
+
+                return Helper.createResponse("Review Log Deleted.", true);
+            }
+
+            return Helper.createResponse("Review id doesn't exist.", false);
+        } catch (Exception ex) {
+            return Helper.createResponse("Error: " + ex.toString(), false);
+        }
+
+    }
 
 }

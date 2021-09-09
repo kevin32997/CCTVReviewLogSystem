@@ -31,6 +31,4 @@ public class Incident {
 
     @Column(name="incident_description")
     private String incidentDescription;
-
-
 }

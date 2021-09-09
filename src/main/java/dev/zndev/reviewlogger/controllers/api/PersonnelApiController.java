@@ -6,6 +6,7 @@ import dev.zndev.reviewlogger.controllers.others.TableUpdateService;
 import dev.zndev.reviewlogger.helpers.Helper;
 import dev.zndev.reviewlogger.helpers.ResourceHelper;
 import dev.zndev.reviewlogger.models.Personnel;
+import dev.zndev.reviewlogger.models.ReviewLog;
 import dev.zndev.reviewlogger.models.others.Response;
 import dev.zndev.reviewlogger.repositories.PersonnelRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +92,17 @@ public class PersonnelApiController {
                         search, search, search, PageRequest.of(0, size));
         Response response = Helper.createResponse("Request Successful", true);
         response.setList(searchedItems);
+        return response;
+    }
+
+    // Get Single Personnel
+    @GetMapping("api/personnel/view/{personnel_id}")
+    private Response getPersonnelById(@PathVariable("personnel_id") int id) {
+        Optional<Personnel> optionalReviewLog = personnelRepo.findById(id);
+        List<Personnel> list = new ArrayList<>();
+        list.add(optionalReviewLog.get());
+        Response response = Helper.createResponse("Request Successful", true);
+        response.setList(list);
         return response;
     }
 
