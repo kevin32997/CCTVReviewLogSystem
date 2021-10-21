@@ -4,7 +4,7 @@ import dev.zndev.reviewlogger.configurations.SystemKeys;
 import dev.zndev.reviewlogger.controllers.others.TableUpdateService;
 import dev.zndev.reviewlogger.helpers.Helper;
 import dev.zndev.reviewlogger.models.Incident;
-import dev.zndev.reviewlogger.models.ReviewLog;
+
 import dev.zndev.reviewlogger.models.others.Response;
 import dev.zndev.reviewlogger.repositories.IncidentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +52,7 @@ public class IncidentApiController {
             list.add(savedIncident);
             return Helper.createResponse("Incident Saved.", true, list);
         } catch (Exception ex) {
+            ex.printStackTrace();
             return Helper.createResponse("An Error Occurred\n" + ex.toString(), false);
         }
     }

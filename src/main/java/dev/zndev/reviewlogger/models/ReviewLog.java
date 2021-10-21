@@ -1,12 +1,11 @@
 package dev.zndev.reviewlogger.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -43,5 +42,9 @@ public class ReviewLog {
     @ManyToOne(targetEntity = Personnel.class)
     @JoinColumn(name="personnel_id", insertable = false, updatable = false)
     private Personnel personnel;
+
+    @JsonInclude()
+    @Transient
+    private int incidentCount;
 
 }

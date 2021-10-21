@@ -157,15 +157,46 @@ public class ReviewLogApiController {
 
     // Search ///////////////////////
 
-    @GetMapping("api/review_log/search/{search}/{size}")
-    private Response searchReview(@PathVariable("search") String search, @PathVariable("size") int size) {
-        List<ReviewLog> searchedItems =
-                reviewLogRepo.findByIdOrPersonnel_firstNameContainsOrPersonnel_lastNameContainsOrPersonnel_middleNameContains(
-                        search, search, search, search, PageRequest.of(0, size));
-        Response response = Helper.createResponse("Request Successful", true);
-        response.setList(searchedItems);
-        return response;
+    /*
+        Search by Personnel's Name
+     */
+    @GetMapping("api/review_log/search/personnel/{search}/{size}")
+    private Response searchReviewByPersonnel(@PathVariable("search") String search, @PathVariable("size") int size) {
+        try {
+            List<ReviewLog> searchedItems =
+                    reviewLogRepo.findAllByPersonnel_firstNameContainsOrPersonnel_lastNameContainsOrPersonnel_middleNameContainsOrPersonnel_officeContains(
+                            search, search, search, search, PageRequest.of(0, size));
+            Response response = Helper.createResponse("Request Successful", true);
+            response.setList(searchedItems);
+            return response;
+        } catch (Exception ex) {
+            return Helper.createResponse("Error: " + ex, false);
+        }
     }
+
+    /*
+        Search by Review ID Pageable
+     */
+    @GetMapping("api/review_log/search/id/{search}/{size}")
+    private Response searchReviewById(@PathVariable("search") String search, @PathVariable("size") int size) {
+        try {
+            // Check if searched is Integer
+            int idToSearch = Integer.parseInt(search);
+
+            List<ReviewLog> searchedItems =
+                    reviewLogRepo.findAllById(
+                            idToSearch, PageRequest.of(0, size));
+            Response response = Helper.createResponse("Request Successful", true);
+            response.setList(searchedItems);
+            return response;
+        } catch (NumberFormatException ex) {
+            return Helper.createResponse("Error: " + ex, false);
+        } catch (Exception ex) {
+            return Helper.createResponse("Error: " + ex, false);
+        }
+
+    }
+
 
     @GetMapping("api/review_log/view/{review_id}")
     private Response getReviewLog(@PathVariable("review_id") int id) {
@@ -202,7 +233,7 @@ public class ReviewLogApiController {
             list.add(updatedReviewLog);
             return Helper.createResponse("Review Log Updated.", true, list);
         } catch (Exception ex) {
-            return Helper.createResponse("Error: " + ex.toString(), false);
+            return Helper.createResponse("Error: " + ex, false);
         }
     }
 
@@ -227,7 +258,6 @@ public class ReviewLogApiController {
         } catch (Exception ex) {
             return Helper.createResponse("Error: " + ex.toString(), false);
         }
-
     }
 
 }

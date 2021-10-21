@@ -4,6 +4,7 @@ import dev.zndev.reviewlogger.configurations.SystemKeys;
 import dev.zndev.reviewlogger.controllers.others.TableUpdateService;
 import dev.zndev.reviewlogger.helpers.Helper;
 import dev.zndev.reviewlogger.helpers.ResourceHelper;
+import dev.zndev.reviewlogger.models.ReviewLog;
 import dev.zndev.reviewlogger.models.User;
 import dev.zndev.reviewlogger.models.others.Response;
 import dev.zndev.reviewlogger.repositories.UsersRepo;
@@ -41,7 +42,7 @@ public class UsersApiController {
             list.add(savedUser);
             return Helper.createResponse("User Saved.", true, list);
         } catch (Exception ex) {
-            return Helper.createResponse("An Error Occurred\n" + ex.toString(), false);
+            return Helper.createResponse("An Error Occurred\n" + ex, false);
         }
     }
 
@@ -105,6 +106,23 @@ public class UsersApiController {
         return map;
     }
 
+    // Search //////////////////////
+
+    @GetMapping("api/users/search/{search}/{size}")
+    private Response searchUser(@PathVariable("search") String search, @PathVariable("size") int size) {
+        try {
+            List<User> searchedItems =
+                    usersRepo.findAllByUsernameContainsOrFullnameContains(
+                             search, search, PageRequest.of(0, size));
+            Response response = Helper.createResponse("Request Successful", true);
+            response.setList(searchedItems);
+            return response;
+        } catch (Exception ex) {
+            return Helper.createResponse("Error: " + ex, false);
+        }
+    }
+
+
     /*==================================================================================================================
                                                         PUT REQUEST
     ==================================================================================================================*/
@@ -119,6 +137,10 @@ public class UsersApiController {
             user.setPassword(details.getPassword());
             user.setUserRole(details.getUserRole());
             User savedUser = usersRepo.save(user);
+
+            // Table Update
+            updateService.updateTable(SystemKeys.TABLE_UPDATE_KEY_USERS);
+
             List<User> list = new ArrayList<>();
             list.add(savedUser);
             return Helper.createResponse("User Updated.", true, list);

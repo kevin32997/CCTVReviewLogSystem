@@ -87,12 +87,16 @@ public class PersonnelApiController {
 
     @GetMapping("api/personnel/search/{search}/{size}")
     private Response searchPersonnel(@PathVariable("search") String search, @PathVariable("size") int size) {
-        List<Personnel> searchedItems =
-                personnelRepo.findByfirstNameContainsOrMiddleNameContainsOrLastNameContains(
-                        search, search, search, PageRequest.of(0, size));
-        Response response = Helper.createResponse("Request Successful", true);
-        response.setList(searchedItems);
-        return response;
+        try {
+            List<Personnel> searchedItems =
+                    personnelRepo.findByfirstNameContainsOrMiddleNameContainsOrLastNameContainsOrOfficeContains(
+                            search, search, search, search, PageRequest.of(0, size));
+            Response response = Helper.createResponse("Request Successful", true);
+            response.setList(searchedItems);
+            return response;
+        } catch (Exception ex) {
+            return Helper.createResponse("An Error Occurred\n" + ex.toString(), false);
+        }
     }
 
     // Get Single Personnel
